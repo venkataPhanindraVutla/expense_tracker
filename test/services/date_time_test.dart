@@ -34,7 +34,7 @@ void main() {
     });
 
     test('getMonthName returns correct month name', () {
-      final testDate = DateTime(2024, 12, 22);
+      final testDate = DateTime(2026, 12, 22);
       final expectedMonth = 'December';
 
       final result = dateTimeService.getMonthName(testDate);
@@ -43,8 +43,8 @@ void main() {
     });
 
     test('formatDate formats date correctly', () {
-      final testDate = DateTime(2024, 12, 22);
-      final expectedFormat = '22-12-2024';
+      final testDate = DateTime(2026, 12, 22);
+      final expectedFormat = '22-12-2026';
 
       final result = dateTimeService.formatDate(testDate, format: 'dd-MM-yyyy');
 
@@ -52,8 +52,8 @@ void main() {
     });
 
     test('stringToDate converts string to DateTime', () {
-      final dateString = '2024-12-22';
-      final expectedDate = DateTime(2024, 12, 22);
+      final dateString = '2026-12-22';
+      final expectedDate = DateTime(2026, 12, 22);
 
       final result = dateTimeService.stringToDate(dateString);
 
@@ -61,8 +61,8 @@ void main() {
     });
 
     test('getDaysDifference calculates difference in days', () {
-      final startDate = DateTime(2024, 12, 20);
-      final endDate = DateTime(2024, 12, 22);
+      final startDate = DateTime(2026, 12, 20);
+      final endDate = DateTime(2026, 12, 22);
 
       final result = dateTimeService.getDaysDifference(startDate, endDate);
 
@@ -70,8 +70,8 @@ void main() {
     });
 
     test('compareDates compares two dates correctly', () {
-      final earlierDate = DateTime(2024, 12, 20);
-      final laterDate = DateTime(2024, 12, 22);
+      final earlierDate = DateTime(2026, 12, 20);
+      final laterDate = DateTime(2026, 12, 22);
 
       expect(dateTimeService.compareDates(earlierDate, laterDate), equals(-1));
       expect(dateTimeService.compareDates(laterDate, earlierDate), equals(1));
@@ -97,8 +97,8 @@ void main() {
     });
 
     test('addDays adds days correctly', () {
-      final testDate = DateTime(2024, 12, 20);
-      final expectedDate = DateTime(2024, 12, 25);
+      final testDate = DateTime(2026, 12, 20);
+      final expectedDate = DateTime(2026, 12, 25);
 
       final result = dateTimeService.addDays(testDate, 5);
 
@@ -106,8 +106,8 @@ void main() {
     });
 
     test('subtractDays subtracts days correctly', () {
-      final testDate = DateTime(2024, 12, 20);
-      final expectedDate = DateTime(2024, 12, 15);
+      final testDate = DateTime(2026, 12, 20);
+      final expectedDate = DateTime(2026, 12, 15);
 
       final result = dateTimeService.subtractDays(testDate, 5);
 
@@ -127,12 +127,12 @@ void main() {
       final pastDate = DateTime(2023, 12, 21);
       expect(dateTimeService.isInThePast(pastDate), isTrue);
 
-      final futureDate = DateTime(2024, 12, 24);
+      final futureDate = DateTime(2026, 12, 24);
       expect(dateTimeService.isInThePast(futureDate), isFalse);
     });
 
     test('isInTheFuture checks if a date is in the future', () {
-      final futureDate = DateTime(2024, 12, 24);
+      final futureDate = DateTime(2026, 12, 24);
       expect(dateTimeService.isInTheFuture(futureDate), isTrue);
 
       final pastDate = DateTime(2023, 12, 21);

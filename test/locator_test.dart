@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:expense_tracker/services/date_time_service.dart';
+import 'package:expense_tracker/services/hive_service.dart';
 import 'package:expense_tracker/services/navigation_service.dart';
 import 'package:expense_tracker/services/size_config.dart';
 import 'package:expense_tracker/services/user_config.dart';
@@ -20,6 +21,7 @@ void main() {
     expect(locator.isRegistered<NavigationService>(), true);
     expect(locator.isRegistered<DateTimeService>(), true);
     expect(locator.isRegistered<UserConfig>(), true);
+    expect(locator.isRegistered<HiveService>(), true);  // Added HiveService check
   });
 
   test('should retrieve registered services from GetIt locator', () {
@@ -31,10 +33,12 @@ void main() {
     final navigationService = locator<NavigationService>();
     final dateTimeService = locator<DateTimeService>();
     final userConfig = locator<UserConfig>();
+    final hiveService = locator<HiveService>();  // Added HiveService retrieval
 
     expect(sizeConfig, isA<SizeConfig>());
     expect(navigationService, isA<NavigationService>());
     expect(dateTimeService, isA<DateTimeService>());
     expect(userConfig, isA<UserConfig>());
+    expect(hiveService, isA<HiveService>());  // Check that HiveService is correctly registered
   });
 }

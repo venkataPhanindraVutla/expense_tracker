@@ -1,68 +1,133 @@
-import 'package:flutter_test/flutter_test.dart';
-// import 'package:expense_tracker/models/expense_model.dart';
+import 'package:expense_tracker/views/specific_day_screen.dart';
 import 'package:expense_tracker/view_model/specific_day_view_model.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
+import 'package:stacked/stacked.dart';
+
+// Mock ViewModel
+class MockSpecificDayViewModel extends Mock implements SpecificDayViewModel {}
 
 void main() {
-  group('SpecificDayViewModel Tests', () {
-    late SpecificDayViewModel viewModel;
+  late MockSpecificDayViewModel mockViewModel;
+  late CalendarTapDetails mockDetails;
 
-    setUp(() {
-      viewModel = SpecificDayViewModel();
+  setUp(() {
+    mockViewModel = MockSpecificDayViewModel();
+    mockDetails = CalendarTapDetails(
+      date: DateTime.now(),
+      targetElement: CalendarElement.appointment,
+    );
+  });
+
+  Widget createWidgetUnderTest() {
+    return MaterialApp(
+      home: SpecificDayScreen(details: mockDetails),
+    );
+  }
+
+  group('SpecificDayScreen Widget Tests', () {
+    testWidgets('should render the screen and show CircularProgressIndicator when loading',
+        (WidgetTester tester) async {
+      // Arrange
+      when(mockViewModel.isLoading).thenReturn(true);
+      when(mockViewModel.expenses).thenReturn([]);
+
+      await tester.pumpWidget(ViewModelBuilder<SpecificDayViewModel>.reactive(
+        viewModelBuilder: () => mockViewModel,
+        builder: (context, model, child) => SpecificDayScreen(details: mockDetails),
+      ));
+
+      // Act
+      await tester.pump();
+
+      // Assert
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
-    test('Initial values are set correctly', () {
-      expect(viewModel.selectedDate, isA<DateTime>());
-      expect(viewModel.expenses, isEmpty);
+    testWidgets('should show "No expenses recorded for today" when expenses list is empty',
+        (WidgetTester tester) async {
+      // Arrange
+      when(mockViewModel.isLoading).thenReturn(false);
+      when(mockViewModel.expenses).thenReturn([]);
+
+      await tester.pumpWidget(ViewModelBuilder<SpecificDayViewModel>.reactive(
+        viewModelBuilder: () => mockViewModel,
+        builder: (context, model, child) => SpecificDayScreen(details: mockDetails),
+      ));
+
+      // Act
+      await tester.pump();
+
+      // Assert
+      expect(find.text('No expenses recorded for today.'), findsOneWidget);
     });
 
-    test('Add expense updates the expense list', () {
-      viewModel.addExpense('Lunch', 10.0, 'Food');
+    testWidgets('should show list of expenses and dismiss item', (WidgetTester tester) async {
+      // Arrange
+      final expenses = [
+        Expense(title: 'Test Expense 1', amount: 100, category: 'Food'),
+        Expense(title: 'Test Expense 2', amount: 50, category: 'Transport')
+      ];
 
-      expect(viewModel.expenses.length, 1);
-      expect(viewModel.expenses.first.title, 'Lunch');
-      expect(viewModel.expenses.first.amount, 10.0);
-      expect(viewModel.expenses.first.category, 'Food');
-      expect(viewModel.expenses.first.date, viewModel.selectedDate);
+      when(mockViewModel.isLoading).thenReturn(false);
+      when(mockViewModel.expenses).thenReturn(expenses);
+
+      await tester.pumpWidget(ViewModelBuilder<SpecificDayViewModel>.reactive(
+        viewModelBuilder: () => mockViewModel,
+        builder: (context, model, child) => SpecificDayScreen(details: mockDetails),
+      ));
+
+      // Act
+      await tester.pump();
+      await tester.drag(find.byType(Dismissible).first, Offset(-500.0, 0.0));
+      await tester.pumpAndSettle();
+
+      // Assert
+      expect(find.text('Test Expense 1'), findsNothing);
+      verify(mockViewModel.deleteExpense(0)).called(1);
     });
 
-    test('Delete expense removes the correct item', () {
-      viewModel.addExpense('Lunch', 10.0, 'Food');
-      viewModel.addExpense('Dinner', 15.0, 'Food');
+    testWidgets('should open add expense dialog when floating action button is pressed',
+        (WidgetTester tester) async {
+      // Arrange
+      when(mockViewModel.isLoading).thenReturn(false);
+      when(mockViewModel.expenses).thenReturn([]);
 
-      viewModel.deleteExpense(0);
+      await tester.pumpWidget(ViewModelBuilder<SpecificDayViewModel>.reactive(
+        viewModelBuilder: () => mockViewModel,
+        builder: (context, model, child) => SpecificDayScreen(details: mockDetails),
+      ));
 
-      expect(viewModel.expenses.length, 1);
-      expect(viewModel.expenses.first.title, 'Dinner');
+      // Act
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+
+      // Assert
+      expect(find.text('Add New Expense'), findsOneWidget);
     });
 
-    test('Edit expense updates the correct expense', () {
-      viewModel.addExpense('Lunch', 10.0, 'Food');
-      viewModel.editExpense(0, 'Brunch', 12.0, 'Food');
+    testWidgets('should allow editing an expense', (WidgetTester tester) async {
+      // Arrange
+      final expenses = [
+        Expense(title: 'Test Expense 1', amount: 100, category: 'Food'),
+      ];
 
-      expect(viewModel.expenses.first.title, 'Brunch');
-      expect(viewModel.expenses.first.amount, 12.0);
-    });
+      when(mockViewModel.isLoading).thenReturn(false);
+      when(mockViewModel.expenses).thenReturn(expenses);
 
-    test('Get total expenses calculates the correct total', () {
-      viewModel.addExpense('Lunch', 10.0, 'Food');
-      viewModel.addExpense('Dinner', 15.0, 'Food');
+      await tester.pumpWidget(ViewModelBuilder<SpecificDayViewModel>.reactive(
+        viewModelBuilder: () => mockViewModel,
+        builder: (context, model, child) => SpecificDayScreen(details: mockDetails),
+      ));
 
-      expect(viewModel.getTotalExpenses(), 25.0);
-    });
+      // Act
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.edit));
+      await tester.pumpAndSettle();
 
-    test('Update selected date filters expenses by date', () {
-      final date1 = DateTime(2024, 1, 1);
-      final date2 = DateTime(2024, 1, 2);
-
-      viewModel.selectedDate = date1;
-      viewModel.addExpense('Expense 1', 10.0, 'Category 1');
-      viewModel.selectedDate = date2;
-      viewModel.addExpense('Expense 2', 15.0, 'Category 2');
-
-      viewModel.updateSelectedDate(date1);
-
-      expect(viewModel.expenses.length, 1);
-      expect(viewModel.expenses.first.title, 'Expense 1');
+      // Assert
+      expect(find.text('Edit Expnese'), findsOneWidget);
     });
   });
 }

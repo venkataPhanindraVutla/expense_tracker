@@ -1,16 +1,25 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:expense_tracker/constants/routes.dart';
 import 'package:expense_tracker/views/specific_day_screen.dart';
 import 'package:expense_tracker/router.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:mockito/mockito.dart';
 
 class MockBuildContext extends Mock implements BuildContext {}
 
 void main() {
   test('should navigate to SpecificDayScreen for Routes.specificDay', () {
-    // Arrange: Define the route settings for '/specificDay'
-    final routeSettings = RouteSettings(name: Routes.specificDay);
+    // Arrange: Define valid CalendarTapDetails
+    final CalendarTapDetails details = CalendarTapDetails(
+      appointments: [], // Empty list for appointments in the test
+      date: DateTime.now(), // Using current date for test purposes
+      element: CalendarElement.calendarCell, // Specify target element
+      resource: null, // No resource for this test
+    );
+    
+    // Create route settings with the CalendarTapDetails as arguments
+    final routeSettings = RouteSettings(name: Routes.specificDay, arguments: details);
 
     // Act: Generate the route
     final route = AppRouter.generateRoute(routeSettings);
@@ -31,6 +40,10 @@ void main() {
 
     // Assert: Verify that the widget created by the builder is of type SpecificDayScreen
     expect(widget, isA<SpecificDayScreen>());
+
+    // Verify that the widget contains the correct details
+    final specificDayScreen = widget as SpecificDayScreen;
+    expect(specificDayScreen.details, details);
   });
 
   test('should return a fallback route for undefined routes', () {
