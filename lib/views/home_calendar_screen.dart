@@ -1,6 +1,6 @@
 import 'package:expense_tracker/locator.dart';
 import 'package:expense_tracker/services/theme_service.dart';
-import 'package:expense_tracker/view_model/home_calendar_screen_view_model.dart';
+import 'package:expense_tracker/view_model/home_calendar_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
